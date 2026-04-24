@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Галерея аудио-примеров</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #171a23;
+      --panel-2: #202433;
+      --text: #f3f5f7;
+      --muted: #9ca3af;
+      --line: #2f3546;
+      --accent: #7c9cff;
+      --accent-2: #b4c4ff;
+      --danger: #ff7c7c;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #1d2540 0, var(--bg) 42%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 40px 24px 20px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.05;
+      margin: 0 0 14px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 720px;
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    input, select {
+      border: 1px solid var(--line);
+      background: rgba(23, 26, 35, 0.9);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.18);
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 12px 24px 64px;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 26px;
+    }
+
+    .pill {
+      background: rgba(124, 156, 255, 0.12);
+      color: var(--accent-2);
+      border: 1px solid rgba(124, 156, 255, 0.25);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 13px;
+    }
+
+    .aspect {
+      background: rgba(23, 26, 35, 0.8);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+      overflow: hidden;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .aspect-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 22px;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0));
+      user-select: none;
+    }
+
+    .aspect-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 18px;
+      transition: transform 0.18s ease;
+      display: inline-block;
+    }
+
+    .collapsed > .aspect-header .chevron,
+    .value-card.collapsed .value-header .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .aspect-meta {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .values {
+      padding: 0 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .aspect.collapsed > .values {
+      display: none;
+    }
+
+    .value-card {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .value-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .value-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .value-title h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+
+    .value-description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    .value-body {
+      padding: 0 16px 16px;
+    }
+
+    .value-card.collapsed .value-body {
+      display: none;
+    }
+
+    .audio-item {
+      padding: 12px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .audio-item:first-child {
+      border-top: 0;
+    }
+
+    
+
+    
+
+    audio {
+      width: 100%;
+      height: 38px;
+    }
+
+    .empty, .error {
+      background: rgba(23, 26, 35, 0.84);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .error strong { color: var(--danger); }
+
+    details {
+      margin-top: 28px;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: rgba(15, 17, 23, 0.45);
+    }
+
+    summary {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    pre {
+      overflow: auto;
+      background: #0b0d12;
+      border-radius: 12px;
+      padding: 14px;
+      color: #dbeafe;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code { color: #dbeafe; }
+
+    @media (max-width: 680px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .aspect-header { align-items: flex-start; flex-direction: column; }
+      .aspect-meta { white-space: normal; }
+      .value-header { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Галерея аудио-примеров</h1>
+    <div class="subtitle">
+      Примеры сгруппированы по аспектам и значениям: эмоции, скорость, тон, громкость и любые другие категории.
+    </div>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Поиск по аспекту, значению или описанию…" />
+      <select id="aspectFilter">
+        <option value="">Все аспекты</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <div id="stats" class="stats"></div>
+    <div id="app"></div>
+
+    <details>
+      <summary>Как подключить свои аудио</summary>
+      <p>Все данные вшиты прямо в HTML. Описания категорий лежат в <code>descriptions</code>, аудио — в <code>audioData</code>.</p>
+      <pre>const audioData = {
+  Emotions: {
+    Sad: [
+      {
+        url: "Tags/Emotions/Sad/sad_001.wav",
+        text: "Грустная интонация, замедленная речь, мягкое затухание фразы."
+      }
+    ]
+  }
+};</pre>
+    </details>
+  </main>
+
+  <script>
+    const descriptions = {
+      "Эмоции": {
+        "Радостно": "Яркая положительная эмоция, много энергии (не обязательно громко): восхищённо и на улыбке.",
+        "Заинтересованно": "Интонация увлечённого рассказа и активного участия в диалоге, при этом считывается доброжелательность.",
+        "Игриво": "Добрая шутливость, задор, озорство, интонации яркие.",
+        "Мягко": "Базовая дружелюбная положительная эмоция: улыбка в голосе, не слишком энергично; открыто, расслабленно, располагающе; интонация без резких скачков.",
+        "Задумчиво": "Интонация «подвисает» в конце фразы, может уходить вверх; возможны растягивание гласных и паузы.",
+        "Сочувствие": "Лёгкая грустная интонация, неэкспрессивная; без улыбки в голосе.",
+        "Грустно": "Явное расстройство: нехватка энергии, тембр понижен, звучание монотонное, поникший голос.",
+        "Недовольно": "Лёгкая раздражённость, ехидство."
+      },
+      "Скорость": {
+        "Быстро": "Быстро как скороговорка, но с сохранением интонации и пунктуации.",
+        "Торопливо": "Темп заметно ускорен, но интонации и пунктуация сохраняются; звучит естественно, просто ощущается внутренняя спешка, энергичность.",
+        "Размеренно": "Медленнее чем обычная разговорная речь, темп спокойный, расслабленный; звучит естественно, часто как неторопливый рассказ истории; слова немного растянуты.",
+        "Медленно": "Cлова произнесены растянуто; темп очень замедлен; длинные паузы."
+      },
+      "Высота тона": {
+        "Высокий": "Явно повысить тон, но при этом важно остаться в роли ассистента, не отыгрывая персонажа.",
+        "Низкий": "Явно понизить тон, но при этом важно остаться в роли ассистента, не отыгрывая персонажа."
+      },
+      "Громкость": {
+        "Крик": "Почти все гласные звуки протягиваются, ударение у слов может пропасть; крик как будто собеседник в километре от нас или на шумном концерте.",
+        "Громко": "Более протяжные гласные, напористость; много акцентных слов; как обращение к толпе / глуховатому собеседнику.",
+        "Тихо": "Расслабленные связки, незвонкий тембр; приглушённый мягкий тон, полушёпот, ровные интонации.",
+        "Шёпот": "Шепотная подача."
+      }
+    };
+
+    const audioData = {
+        "Персонаж": {
+          "Алиса": [
+            {
+              name: "happy1",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/pcm__wav_row19_wcrt2.wav"
+            },
+            {
+              name: "happy2",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/pcm__wav_row22_1mdjj.wav"
+            },
+            {
+              name: "happy3",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/pcm__wav_row26_1b6rf.wav"
+            },
+            {
+              name: "happy4",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/pcm__wav_row33_15sus.wav"
+            },
+            {
+              name: "happy5",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/pcm__wav_row911_vagmk.wav"
+            },
+            {
+              name: "happy6",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/pcm__wav_row921_rei1m.wav"
+            },
+            {
+              name: "happy7",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row0_1mjxg.wav"
+            },
+            {
+              name: "happy8",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row12_13l5q.wav"
+            },
+            {
+              name: "happy9",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row1_xahhi.wav"
+            },
+            {
+              name: "happy10",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row2_ah346.wav"
+            },
+            {
+              name: "happy11",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row4_1wgw1.wav"
+            },
+            {
+              name: "happy12",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row4_ipkbl.wav"
+            },
+            {
+              name: "happy13",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row6_1cyrx.wav"
+            },
+            {
+              name: "happy14",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row6_b8n9c.wav"
+            },
+            {
+              name: "happy15",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Alice/synthesized__wav_row8_y252s.wav"
+            }
+          ],
+          "Татьяна": [
+            {
+              name: "happy1",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row0_12ocd.wav"
+            },
+            {
+              name: "happy2",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row12_cs0fj.wav"
+            },
+            {
+              name: "happy3",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row14_cevc4.wav"
+            },
+            {
+              name: "happy4",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row14_ps6fk.wav"
+            },
+            {
+              name: "happy5",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row6_sc744.wav"
+            },
+            {
+              name: "happy6",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row9_werti.wav"
+            },
+            {
+              name: "happy7",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row19_1nb5a.wav"
+            },
+            {
+              name: "happy8",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row1_104lm.wav"
+            },
+            {
+              name: "happy9",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row22_o0ccp.wav"
+            },
+            {
+              name: "happy10",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row29_15e93.wav"
+            },
+            {
+              name: "happy11",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row34_173gw.wav"
+            },
+            {
+              name: "happy12",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row39_t5xx8.wav"
+            },
+            {
+              name: "happy13",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row45_82k2r.wav"
+            },
+            {
+              name: "happy14",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row47_hkjoj.wav"
+            },
+            {
+              name: "happy15",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row52_15kbc.wav"
+            },
+            {
+              name: "happy16",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row58_1gq59.wav"
+            },
+            {
+              name: "happy17",
+              url: "https://github.com/matvich/ShitovaExamples/raw/refs/heads/main/AliceVSTatiana/Tatiana/pcm__wav_row5_8t6cf.wav"
+            }
+          ],
+        }
+      };
+
+    const app = document.getElementById("app");
+    const stats = document.getElementById("stats");
+    const searchInput = document.getElementById("search");
+    const aspectFilter = document.getElementById("aspectFilter");
+
+    function normalizeAudioItem(item, index) {
+      if (typeof item === "string") {
+        return {
+          url: item,
+          text: ""
+        };
+      }
+
+      return {
+        url: item.url,
+        text: item.text || item.description || item.transcript || item.prompt || ""
+      };
+    }
+
+    function getValueDescription(aspect, value) {
+      return descriptions?.[aspect]?.[value] || "";
+    }
+
+    function countAll(data) {
+      let aspects = Object.keys(data).length;
+      let values = 0;
+      let audios = 0;
+
+      for (const aspect of Object.keys(data)) {
+        values += Object.keys(data[aspect]).length;
+        for (const value of Object.keys(data[aspect])) {
+          audios += data[aspect][value].length;
+        }
+      }
+
+      return { aspects, values, audios };
+    }
+
+    function fillAspectFilter(data) {
+      for (const aspect of Object.keys(data)) {
+        const option = document.createElement("option");
+        option.value = aspect;
+        option.textContent = aspect;
+        aspectFilter.appendChild(option);
+      }
+    }
+
+    function renderStats(data) {
+      const c = countAll(data);
+      stats.innerHTML = `
+        <span class="pill">Аспектов: ${c.aspects}</span>
+        <span class="pill">Значений: ${c.values}</span>
+        <span class="pill">Аудио: ${c.audios}</span>
+      `;
+    }
+
+    function matchesQuery(aspect, value, categoryDescription, item, query) {
+      if (!query) return true;
+
+      const blob = [
+        aspect,
+        value,
+        categoryDescription,
+        item.text,
+        item.url
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return blob.includes(query.toLowerCase());
+    }
+
+    function render() {
+      const query = searchInput.value.trim();
+      const selectedAspect = aspectFilter.value;
+      app.innerHTML = "";
+
+      let renderedAudios = 0;
+
+      for (const [aspect, values] of Object.entries(audioData)) {
+        if (selectedAspect && aspect !== selectedAspect) continue;
+
+        const valueEntries = [];
+        let aspectAudioCount = 0;
+
+        for (const [value, rawItems] of Object.entries(values)) {
+          const categoryDescription = getValueDescription(aspect, value);
+          const items = rawItems
+            .map(normalizeAudioItem)
+            .filter(item => item.url && matchesQuery(aspect, value, categoryDescription, item, query));
+
+          if (items.length > 0 || (!query && categoryDescription)) {
+            valueEntries.push({ value, categoryDescription, items });
+            aspectAudioCount += items.length;
+          }
+        }
+
+        if (valueEntries.length === 0) continue;
+
+        const aspectEl = document.createElement("section");
+        aspectEl.className = "aspect collapsed";
+        aspectEl.innerHTML = `
+          <div class="aspect-header">
+            <div class="aspect-title"><span class="chevron">⌄</span>${escapeHtml(aspect)}</div>
+            <div class="aspect-meta">${valueEntries.length} значений · ${aspectAudioCount} аудио</div>
+          </div>
+          <div class="values"></div>
+        `;
+
+        const valuesRoot = aspectEl.querySelector(".values");
+
+        for (const entry of valueEntries) {
+          const card = document.createElement("article");
+          card.className = "value-card collapsed";
+          card.innerHTML = `
+            <div class="value-header">
+              <div>
+                <div class="value-title">
+                  <span class="chevron">⌄</span>
+                  <h3>${escapeHtml(entry.value)}</h3>
+                </div>
+                ${entry.categoryDescription ? `<p class="value-description">${escapeHtml(entry.categoryDescription)}</p>` : ""}
+              </div>
+              <span class="count">${entry.items.length} аудио</span>
+            </div>
+            <div class="value-body"></div>
+          `;
+
+          const valueBody = card.querySelector(".value-body");
+
+          if (entry.items.length === 0) {
+            valueBody.innerHTML = `<div class="audio-empty-description">Пока нет добавленных аудио.</div>`;
+          }
+
+          for (const item of entry.items) {
+            const audio = document.createElement("div");
+            audio.className = "audio-item";
+            audio.innerHTML = `
+              
+              <audio controls preload="none" src="${escapeAttr(item.url)}"></audio>
+            `;
+            valueBody.appendChild(audio);
+            renderedAudios++;
+          }
+
+          card.querySelector(".value-header").addEventListener("click", () => {
+            card.classList.toggle("collapsed");
+          });
+
+          valuesRoot.appendChild(card);
+        }
+
+        aspectEl.querySelector(".aspect-header").addEventListener("click", () => {
+          aspectEl.classList.toggle("collapsed");
+        });
+
+        app.appendChild(aspectEl);
+      }
+
+      if (renderedAudios === 0 && query) {
+        app.innerHTML = `<div class="empty">Ничего не найдено. Попробуй изменить поиск или фильтр аспекта.</div>`;
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replaceAll("`", "&#096;");
+    }
+
+    function init() {
+      renderStats(audioData);
+      fillAspectFilter(audioData);
+      render();
+    }
+
+    searchInput.addEventListener("input", render);
+    aspectFilter.addEventListener("change", render);
+
+    init();
+  </script>
+</body>
+</html>
